@@ -2,6 +2,14 @@
 
 **Intelligent Meeting Analytics Platform**
 
+## Screenshots
+
+### 🔍 Recherche IA — Requêtes sémantiques sur l'historique
+![Recherche IA](https://raw.githubusercontent.com/NouhailaElbakkioui/meetingmind-ai/main/docs/search.png)
+
+### 📤 Upload — Analyse d'une réunion audio
+![Upload](https://raw.githubusercontent.com/NouhailaElbakkioui/meetingmind-ai/main/docs/upload.png)
+
 Pipeline NLP end-to-end : upload un audio de réunion → transcription automatique, extraction de décisions et actions, analyse de sentiment par participant, RAG sémantique sur l'historique, génération de compte-rendu professionnel par Claude.
 
 ---
