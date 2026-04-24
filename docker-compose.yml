@@ -1,0 +1,65 @@
+version: "3.9"
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://meetingmind:secret@postgres:5432/meetingmind
+      - CHROMA_HOST=chromadb
+      - CHROMA_PORT=8001
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_S3_BUCKET=${AWS_S3_BUCKET}
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+    volumes:
+      - ./backend:/app
+      - audio_storage:/tmp/audio
+    depends_on:
+      - postgres
+      - chromadb
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    depends_on:
+      - backend
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=meetingmind
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=meetingmind
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5433:5432"
+
+  chromadb:
+    image: chromadb/chroma:latest
+    ports:
+      - "8001:8001"
+    volumes:
+      - chroma_data:/chroma/chroma
+
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.10.0
+    ports:
+      - "5000:5000"
+    command: mlflow server --host 0.0.0.0 --port 5000 --backend-store-uri sqlite:///mlflow.db --default-artifact-root /mlflow/artifacts
+    volumes:
+      - mlflow_data:/mlflow
+
+volumes:
+  postgres_data:
+  chroma_data:
+  mlflow_data:
+  audio_storage:
